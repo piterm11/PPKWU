@@ -3,7 +3,7 @@ import http.server
 import socketserver
 import os
 from datetime import datetime
-
+import pytz
 #print('source code for "http.server":', http.server.__file__)
 
 class web_server(http.server.SimpleHTTPRequestHandler):
@@ -19,7 +19,9 @@ class web_server(http.server.SimpleHTTPRequestHandler):
             self.end_headers()            
             
             text = b"Hello World!\n"
-            text2 = (datetime.now().strftime('%H:%M:%S')+"\n").encode()
+            warsawTimeZone = pytz.timezone("Europe/Warsaw") 
+            warsawTime = datetime.now(warsawTimeZone)
+            text2 = (warsawTime.strftime('%H:%M:%S')+"\n").encode()
             self.wfile.write(text)
             self.wfile.write(text2)
         else:
