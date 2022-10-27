@@ -35,8 +35,11 @@ class web_server(http.server.SimpleHTTPRequestHandler):
                 param2 = param.removeprefix('rev')
                 if param2.startswith('&str='):
                     param2 =param2.removeprefix('&str=')
-                    text = (param2[::-1]+'\n').encode()
-                    self.wfile.write(text)
+                    if param2.__len__ == 0:
+                        self.wfile.write(b"wrong command\n")
+                    else:
+                        text = (param2[::-1]+'\n').encode()
+                        self.wfile.write(text)
                 else:
                     self.wfile.write(b"wrong command\n")
             else:
