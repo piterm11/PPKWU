@@ -24,20 +24,11 @@ public class Test {
 			String response = "";
 			if(params!=null) {
 				String text = params.get("str");
-				int up = 0;
-				int low = 0;
-				int special = 0;
-				int digit = 0;
-				for(int i=0;i<text.length();i++){
-					if(Character.isUpperCase(text.charAt(i)))
-						up++;
-					else if(Character.isLowerCase(text.charAt(i)))
-						low++;
-					else if(Character.isDigit(text.charAt(i)))
-						digit++;
-					else
-						special++;
-				}
+				long up = text.chars().filter((c->Character.isUpperCase(c))).count();
+				long low = text.chars().filter((c->Character.isLowerCase(c))).count();
+				long digit = text.chars().filter((c->Character.isDigit(c))).count();
+				long special = text.length()-(up+low+digit);
+				
 				response = buildJSON(low,up,digit,special);
 			}
 
@@ -65,8 +56,8 @@ public class Test {
 		}
 
 
-		public String buildJSON(int low, int up, int digit, int special){
-			return " { \"lowercase\" : "+low+", \"uppercase\" : "+up+", \"digits\" : "+digit+", \"special\" : "+special+"}";
+		public String buildJSON(long low, long up, long digit, long special){
+			return "{ \"lowercase\" : "+low+", \"uppercase\" : "+up+", \"digits\" : "+digit+", \"special\" : "+special+"}";
 		}
 	}
 }
