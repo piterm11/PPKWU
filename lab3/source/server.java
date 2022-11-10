@@ -22,7 +22,7 @@ public class Test {
 		public void handle(HttpExchange t) throws IOException {
 			Map<String,String> params = queryToMap(t.getRequestURI().getQuery());
 			String response = "";
-			if(params!=null) {
+			if(params!=null && params.get("str")!=null) {
 				String text = params.get("str");
 				long up = text.chars().filter((c->Character.isUpperCase(c))).count();
 				long low = text.chars().filter((c->Character.isLowerCase(c))).count();
@@ -57,7 +57,7 @@ public class Test {
 
 
 		public String buildJSON(long low, long up, long digit, long special){
-			return "{ \"lowercase\" : "+low+", \"uppercase\" : "+up+", \"digits\" : "+digit+", \"special\" : "+special+"}";
+			return "{\"lowercase\" : "+low+", \"uppercase\" : "+up+", \"digits\" : "+digit+", \"special\" : "+special+"}";
 		}
 	}
 }
