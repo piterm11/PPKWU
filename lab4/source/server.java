@@ -22,21 +22,12 @@ public class Test {
 		public void handle(HttpExchange t) throws IOException {
 			Map<String,String> params = queryToMap(t.getRequestURI().getQuery());
 			String response = "";
-			if(params!=null && params.get("str")!=null) {
-				String text = params.get("str");
-				long up = text.chars().filter((c->Character.isUpperCase(c))).count();
-				long low = text.chars().filter((c->Character.isLowerCase(c))).count();
-				long digit = text.chars().filter((c->Character.isDigit(c))).count();
-				long special = text.length()-(up+low+digit);
-				
-				response = buildJSON(low,up,digit,special);
-			}
+			
 
 			t.sendResponseHeaders(200, response.length());
 			OutputStream os = t.getResponseBody();
 			os.write(response.getBytes());
 			os.close();
-			System.out.println("Served hello world...");
 		}
 
 		public Map<String, String> queryToMap(String query) {
@@ -55,9 +46,5 @@ public class Test {
 			return result;
 		}
 
-
-		public String buildJSON(long low, long up, long digit, long special){
-			return "{\"lowercase\" : "+low+", \"uppercase\" : "+up+", \"digits\" : "+digit+", \"special\" : "+special+"}";
-		}
 	}
 }
