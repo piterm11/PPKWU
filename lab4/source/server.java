@@ -26,8 +26,8 @@ public class Test {
 			if(params.containsKey("num1")&&params.containsKey("num2")){
 				int num1 = Integer.parseInt(params.get("num1"));
 				int num2 = Integer.parseInt(params.get("num2"));
-				response = buildJSON(num1,num2);
-
+				if(num2!=0)
+					response = buildJSON(num1,num2);
 			}
 
 			t.sendResponseHeaders(200, response.length());
