@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,22 +27,24 @@ public class Test {
 				int num1 = Integer.parseInt(params.get("num1"));
 				int num2 = Integer.parseInt(params.get("num2"));
 				response = buildJSON(num1,num2);
-				
+
 			}
 
 			t.sendResponseHeaders(200, response.length());
 			OutputStream os = t.getResponseBody();
-			os.write(response.getBytes());
-			os.close();
+			OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
+			osw.write(response);
+			osw.flush();
+			osw.close();
 		}
 
 		private String buildJSON(int num1, int num2) {
-			return "{" +
+			return "{ " +
 					"\"sum\" : "+(num1+num2)+", " +
 					"\"sub\" : "+(num1-num2)+", " +
 					"\"mul\" : "+(num1*num2)+", " +
 					"\"div\" : "+(num1/num2)+", " +
-					"\"mod\" : "+(num1%num2)+"}";
+					"\"mod\" : "+(num1%num2)+" }";
 		}
 
 		public Map<String, String> queryToMap(String query) {
