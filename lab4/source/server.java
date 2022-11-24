@@ -22,12 +22,26 @@ public class Test {
 		public void handle(HttpExchange t) throws IOException {
 			Map<String,String> params = queryToMap(t.getRequestURI().getQuery());
 			String response = "";
-			
+			if(params.containsKey("num1")&&params.containsKey("num2")){
+				int num1 = Integer.parseInt(params.get("num1"));
+				int num2 = Integer.parseInt(params.get("num2"));
+				response = buildJSON(num1,num2);
+				
+			}
 
 			t.sendResponseHeaders(200, response.length());
 			OutputStream os = t.getResponseBody();
 			os.write(response.getBytes());
 			os.close();
+		}
+
+		private String buildJSON(int num1, int num2) {
+			return "{" +
+					"\"sum\" : "+(num1+num2)+", " +
+					"\"sub\" : "+(num1-num2)+", " +
+					"\"mul\" : "+(num1*num2)+", " +
+					"\"div\" : "+(num1/num2)+", " +
+					"\"mod\" : "+(num1%num2)+"}";
 		}
 
 		public Map<String, String> queryToMap(String query) {
