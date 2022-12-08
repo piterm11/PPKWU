@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -26,19 +28,29 @@ public class Test {
             String jsonString = "{\"str\":\"teststring\"}";
             Gson gson = new Gson();
             Map<String, String> map = gson.fromJson(jsonString, new TypeToken<Map<String,String>>(){}.getType());
-            String response = "";
+            String response = "test";
+            JsonObject json = new JsonObject();
             if(map.containsKey("str")){
-				response="test";
+                String text = map.get("str");
+                long up = text.chars().filter((c->Character.isUpperCase(c))).count();
+                long low = text.chars().filter((c->Character.isLowerCase(c))).count();
+                long digit = text.chars().filter((c->Character.isDigit(c))).count();
+                long special = text.length()-(up+low+digit);
+
+                json.addProperty("lowercase", low);
+                json.addProperty("uppercase", up);
+                json.addProperty("digits", digit);
+                json.addProperty("special", special);
             } if(map.containsKey("num1") && map.containsKey("num2")){
 
             }
 
 
-
-
-
+			System.out.println(json.getAsString());
+			response="{\"str\":\"teststring\"}";
+			t.getResponseHeaders().set("Content-Type", "application/json");
             t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
+    		OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();
         }
