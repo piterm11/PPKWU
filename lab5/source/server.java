@@ -1,11 +1,11 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.sun.net.httpserver.HttpExchange;
@@ -24,56 +24,38 @@ public class Test {
     static class MyHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
-            Map<String,String> params = queryToMap(t.getRequestURI().getQuery());
-            String jsonString = "{\"str\":\"teststring\"}";
+            InputStreamReader isr =  new InputStreamReader(t.getRequestBody(),"utf-8");
+            BufferedReader br = new BufferedReader(isr);
+            String value = br.readLine();
             Gson gson = new Gson();
-            Map<String, String> map = gson.fromJson(jsonString, new TypeToken<Map<String,String>>(){}.getType());
+            Map<String, String> map = gson.fromJson(value, new TypeToken<Map<String,String>>(){}.getType());
             String response = "";
             JsonObject json = new JsonObject();
+			System.out.println(1);
             if(map.containsKey("str")){
                 String text = map.get("str");
                 long up = text.chars().filter((c->Character.isUpperCase(c))).count();
                 long low = text.chars().filter((c->Character.isLowerCase(c))).count();
                 long digit = text.chars().filter((c->Character.isDigit(c))).count();
                 long special = text.length()-(up+low+digit);
-
                 json.addProperty("lowercase", low);
                 json.addProperty("uppercase", up);
                 json.addProperty("digits", digit);
                 json.addProperty("special", special);
             } if(map.containsKey("num1") && map.containsKey("num2")){
-                int num1 = Integer.parseInt(params.get("num1"));
-                int num2 = Integer.parseInt(params.get("num2"));
+                int num1 = Integer.parseInt(map.get("num1"));
+                int num2 = Integer.parseInt(map.get("num2"));
                 json.addProperty("sum", num1+num2);
                 json.addProperty("sub", num1-num2);
                 json.addProperty("mul", num1*num2);
                 json.addProperty("div", num1/num2);
                 json.addProperty("mod", num1%num2);
             }
-			System.out.println(json.getAsString());
-			System.out.println(json.toString());
-            response = json.getAsString();
-            t.getResponseHeaders().set("Content-Type", "application/json");
-            t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-        }
-
-        public Map<String, String> queryToMap(String query) {
-            if(query == null) {
-                return null;
-            }
-            Map<String, String> result = new HashMap<>();
-            for (String param : query.split("&")) {
-                String[] entry = param.split("=");
-                if (entry.length > 1) {
-                    result.put(entry[0], entry[1]);
-                }else{
-                    result.put(entry[0], "");
-                }
-            }
-            return result;
+            response = json.toString();
+            t.sendResponseHeaders(200, response.toString().length());
+			OutputStream os = t.getResponseBody();
+			os.write(response.toString().getBytes());
+			os.close();
         }
 
     }
