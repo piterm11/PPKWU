@@ -28,7 +28,7 @@ public class Test {
             String jsonString = "{\"str\":\"teststring\"}";
             Gson gson = new Gson();
             Map<String, String> map = gson.fromJson(jsonString, new TypeToken<Map<String,String>>(){}.getType());
-            String response = "test";
+            String response = "";
             JsonObject json = new JsonObject();
             if(map.containsKey("str")){
                 String text = map.get("str");
@@ -42,15 +42,20 @@ public class Test {
                 json.addProperty("digits", digit);
                 json.addProperty("special", special);
             } if(map.containsKey("num1") && map.containsKey("num2")){
-
+                int num1 = Integer.parseInt(params.get("num1"));
+                int num2 = Integer.parseInt(params.get("num2"));
+                json.addProperty("sum", num1+num2);
+                json.addProperty("sub", num1-num2);
+                json.addProperty("mul", num1*num2);
+                json.addProperty("div", num1/num2);
+                json.addProperty("mod", num1%num2);
             }
-
-
 			System.out.println(json.getAsString());
-			response="{\"str\":\"teststring\"}";
-			t.getResponseHeaders().set("Content-Type", "application/json");
+			System.out.println(json.toString());
+            response = json.getAsString();
+            t.getResponseHeaders().set("Content-Type", "application/json");
             t.sendResponseHeaders(200, response.length());
-    		OutputStream os = t.getResponseBody();
+            OutputStream os = t.getResponseBody();
             os.write(response.getBytes());
             os.close();
         }
