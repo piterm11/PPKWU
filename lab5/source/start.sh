@@ -1,2 +1,2 @@
 #!/bin/bash
-java ./server.java
+java -cp ./gson-2.10.jar ./server.java
