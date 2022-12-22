@@ -1,17 +1,23 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 public class Test {
 
@@ -25,39 +31,73 @@ public class Test {
     static class MyHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange t) throws IOException {
-            String response = "";
             if(t.getRequestMethod().equals("POST")){
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = null;
                 try {
                     builder = factory.newDocumentBuilder();
                     Document requestXml = builder.parse(t.getRequestBody());
+                    Document responseXml = process(requestXml);
+                    
+                    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                    Transformer transformer = transformerFactory.newTransformer();
+                    DOMSource source = new DOMSource(responseXml);
+                    t.sendResponseHeaders(200, 0);
+                    OutputStream os = t.getResponseBody();
+                    transformer.transform(source, new StreamResult(os));
+                    os.close();
                 } catch (Exception e) {
                 }
             }
-            t.sendResponseHeaders(200, response.length());
-            OutputStream os = t.getResponseBody();
-            OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-            osw.write(response);
-            osw.flush();
-            osw.close();
         }
 
-        public Map<String, String> queryToMap(String query) {
-            if(query == null) {
-                return null;
-            }
-            Map<String, String> result = new HashMap<>();
-            for (String param : query.split("&")) {
-                String[] entry = param.split("=");
-                if (entry.length > 1) {
-                    result.put(entry[0], entry[1]);
-                }else{
-                    result.put(entry[0], "");
+        private Document process(Document requestXml) throws ParserConfigurationException {
+            Document response;
+            try {
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                response = builder.newDocument();
+
+                Element root = response.createElement("root");
+                response.appendChild(root);
+                NodeList children = requestXml.getChildNodes();
+                for(int i = 0;i<children.getLength();i++){
+
+                    System.out.println(children.item(i).getNodeName());
+                    if(children.item(i).getNodeName().equals("str")){
+                        String text = children.item(i).getTextContent();
+                        Element lowercase = response.createElement("lowercase");
+                        Element uppercase = response.createElement("uppercase");
+                        Element digits = response.createElement("digits");
+                        Element specials = response.createElement("special");
+                        root.appendChild(lowercase);
+                        root.appendChild(uppercase);
+                        root.appendChild(digits);
+                        root.appendChild(specials);
+                        long up = text.chars().filter((c->Character.isUpperCase(c))).count();
+                        long low = text.chars().filter((c->Character.isLowerCase(c))).count();
+                        long digit = text.chars().filter((c->Character.isDigit(c))).count();
+                        long special = text.length()-(up+low+digit);
+                        lowercase.setTextContent(low+"");
+                        uppercase.setTextContent(up+"");
+                        digits.setTextContent(digit+"");
+                        specials.setTextContent(special+"");
+                    }
                 }
+
+
+
+
+
+
+            } catch (ParserConfigurationException e) {
+                throw new ParserConfigurationException(e.getMessage());
             }
-            return result;
+
+
+            return response;
         }
+
 
     }
 }
