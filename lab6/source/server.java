@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +12,6 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 public class Test {
 
@@ -37,12 +32,6 @@ public class Test {
                 try {
                     builder = factory.newDocumentBuilder();
                     Document requestXml = builder.parse(t.getRequestBody());
-                    TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                    Transformer transformer = transformerFactory.newTransformer();
-                    StringWriter writer = new StringWriter();
-                    transformer.transform(new DOMSource(requestXml), new StreamResult(writer));
-                    String inputXmlString = writer.getBuffer().toString();
-                    System.out.println(inputXmlString);
                 } catch (Exception e) {
                 }
             }
