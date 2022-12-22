@@ -38,7 +38,7 @@ public class Test {
                     builder = factory.newDocumentBuilder();
                     Document requestXml = builder.parse(t.getRequestBody());
                     Document responseXml = process(requestXml);
-                    
+
                     TransformerFactory transformerFactory = TransformerFactory.newInstance();
                     Transformer transformer = transformerFactory.newTransformer();
                     DOMSource source = new DOMSource(responseXml);
@@ -60,10 +60,15 @@ public class Test {
 
                 Element root = response.createElement("root");
                 response.appendChild(root);
+
                 NodeList children = requestXml.getChildNodes();
+                Element requestRoot = requestXml.getDocumentElement();
+                if(requestRoot.getNodeName().equals("root"))
+                    children = requestRoot.getChildNodes();
+
+
                 for(int i = 0;i<children.getLength();i++){
 
-                    System.out.println(children.item(i).getNodeName());
                     if(children.item(i).getNodeName().equals("str")){
                         String text = children.item(i).getTextContent();
                         Element lowercase = response.createElement("lowercase");
@@ -82,6 +87,29 @@ public class Test {
                         uppercase.setTextContent(up+"");
                         digits.setTextContent(digit+"");
                         specials.setTextContent(special+"");
+                    }
+                    if(children.item(i).getNodeName().equals("num1")){
+                        for(int j = 0; j<children.getLength();j++){
+                            if(children.item(j).getNodeName().equals("num2")){
+                                int num1 = Integer.parseInt(children.item(i).getTextContent());
+                                int num2 = Integer.parseInt(children.item(j).getTextContent());
+                                Element sum = response.createElement("sum");
+                                Element sub = response.createElement("sub");
+                                Element mul = response.createElement("mul");
+                                Element div = response.createElement("div");
+                                Element mod = response.createElement("mod");
+                                root.appendChild(sum);
+                                root.appendChild(sub);
+                                root.appendChild(mul);
+                                root.appendChild(div);
+                                root.appendChild(mod);
+                                sum.setTextContent(num1+num2+"");
+                                sub.setTextContent(num1-num2+"");
+                                mul.setTextContent(num1*num2+"");
+                                div.setTextContent(num1/num2+"");
+                                mod.setTextContent(num1%num2+"");
+                            }
+                        }
                     }
                 }
 
