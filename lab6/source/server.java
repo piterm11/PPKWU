@@ -51,9 +51,9 @@ public class Test {
                     os.close();
                 } catch (ParserConfigurationException | TransformerException | SAXException e) {
                     String response = "error";
-                    t.sendResponseHeaders(200, response.toString().length());
+                    t.sendResponseHeaders(200, response.length());
                     OutputStream os = t.getResponseBody();
-                    os.write(response.toString().getBytes());
+                    os.write(response.getBytes());
                     os.close();
                 }
             }
@@ -65,7 +65,7 @@ public class Test {
                 DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = factory.newDocumentBuilder();
                 response = builder.newDocument();
-
+                response.setXmlStandalone(true);
                 Element root = response.createElement("root");
                 response.appendChild(root);
 
@@ -74,48 +74,18 @@ public class Test {
                 if(requestRoot.getNodeName().equals("root"))
                     children = requestRoot.getChildNodes();
 
-
                 for(int i = 0;i<children.getLength();i++){
 
                     if(children.item(i).getNodeName().equals("str")){
                         String text = children.item(i).getTextContent();
-                        Element lowercase = response.createElement("lowercase");
-                        Element uppercase = response.createElement("uppercase");
-                        Element digits = response.createElement("digits");
-                        Element specials = response.createElement("special");
-                        root.appendChild(lowercase);
-                        root.appendChild(uppercase);
-                        root.appendChild(digits);
-                        root.appendChild(specials);
-                        long up = text.chars().filter((c->Character.isUpperCase(c))).count();
-                        long low = text.chars().filter((c->Character.isLowerCase(c))).count();
-                        long digit = text.chars().filter((c->Character.isDigit(c))).count();
-                        long special = text.length()-(up+low+digit);
-                        lowercase.setTextContent(low+"");
-                        uppercase.setTextContent(up+"");
-                        digits.setTextContent(digit+"");
-                        specials.setTextContent(special+"");
+                        operateOnStr(response, root, text);
                     }
                     if(children.item(i).getNodeName().equals("num1")){
                         for(int j = 0; j<children.getLength();j++){
                             if(children.item(j).getNodeName().equals("num2")){
                                 int num1 = Integer.parseInt(children.item(i).getTextContent());
                                 int num2 = Integer.parseInt(children.item(j).getTextContent());
-                                Element sum = response.createElement("sum");
-                                Element sub = response.createElement("sub");
-                                Element mul = response.createElement("mul");
-                                Element div = response.createElement("div");
-                                Element mod = response.createElement("mod");
-                                root.appendChild(sum);
-                                root.appendChild(sub);
-                                root.appendChild(mul);
-                                root.appendChild(div);
-                                root.appendChild(mod);
-                                sum.setTextContent(num1+num2+"");
-                                sub.setTextContent(num1-num2+"");
-                                mul.setTextContent(num1*num2+"");
-                                div.setTextContent(num1/num2+"");
-                                mod.setTextContent(num1%num2+"");
+                                operateOnNumbers(response, root, num1, num2);
                             }
                         }
                     }
@@ -123,7 +93,46 @@ public class Test {
             } catch (ParserConfigurationException e) {
                 throw new ParserConfigurationException(e.getMessage());
             }
+
+
             return response;
+        }
+
+        private static void operateOnStr(Document response, Element root, String text) {
+            Element lowercase = response.createElement("lowercase");
+            Element uppercase = response.createElement("uppercase");
+            Element digits = response.createElement("digits");
+            Element specials = response.createElement("special");
+            root.appendChild(lowercase);
+            root.appendChild(uppercase);
+            root.appendChild(digits);
+            root.appendChild(specials);
+            long up = text.chars().filter((c->Character.isUpperCase(c))).count();
+            long low = text.chars().filter((c->Character.isLowerCase(c))).count();
+            long digit = text.chars().filter((c->Character.isDigit(c))).count();
+            long special = text.length()-(up+low+digit);
+            lowercase.setTextContent(low+"");
+            uppercase.setTextContent(up+"");
+            digits.setTextContent(digit+"");
+            specials.setTextContent(special+"");
+        }
+
+        private static void operateOnNumbers(Document response, Element root, int num1, int num2) {
+            Element sum = response.createElement("sum");
+            Element sub = response.createElement("sub");
+            Element mul = response.createElement("mul");
+            Element div = response.createElement("div");
+            Element mod = response.createElement("mod");
+            root.appendChild(sum);
+            root.appendChild(sub);
+            root.appendChild(mul);
+            root.appendChild(div);
+            root.appendChild(mod);
+            sum.setTextContent(num1 + num2 +"");
+            sub.setTextContent(num1 - num2 +"");
+            mul.setTextContent(num1 * num2 +"");
+            div.setTextContent(num1 / num2 +"");
+            mod.setTextContent(num1 % num2 +"");
         }
 
 
